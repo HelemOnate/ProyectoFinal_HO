@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { PaymentService } from '../../../core/services/payment.service';
+import { WorkOrderService } from '../../../core/services/work-order.service';
 import { Payment } from '../../../shared/models/payment.model';
+import { WorkOrder } from '../../../shared/models/work-order.model';
 
 @Component({
   selector: 'app-payment-create',
@@ -31,7 +33,7 @@ import { Payment } from '../../../shared/models/payment.model';
   templateUrl: './payment-create.component.html',
   encapsulation: ViewEncapsulation.None
 })
-export class PaymentCreateComponent {
+export class PaymentCreateComponent implements OnInit {
   payment: Payment = {
     id: 0,
     workOrderId: 0,
@@ -44,6 +46,9 @@ export class PaymentCreateComponent {
     createdAt: new Date(),
     updatedAt: new Date()
   };
+
+  workOrders: WorkOrder[] = [];
+  workOrderOptions: { label: string, value: number }[] = [];
 
   paymentMethodOptions = [
     { label: 'Efectivo', value: 'cash' },
@@ -62,9 +67,34 @@ export class PaymentCreateComponent {
 
   constructor(
     private paymentService: PaymentService,
+    private workOrderService: WorkOrderService,
     private router: Router,
     private messageService: MessageService
   ) {}
+
+  ngOnInit() {
+    this.loadWorkOrders();
+  }
+
+  loadWorkOrders() {
+    this.workOrderService.getWorkOrders().subscribe({
+      next: (workOrders: any[]) => {
+        this.workOrders = workOrders;
+        this.workOrderOptions = workOrders.map((wo: any) => ({
+          label: `Orden #${wo.id} - ${wo.description || 'Sin descripción'} (${wo.status})`,
+          value: wo.id
+        }));
+      },
+      error: (error: any) => {
+        console.error('Error cargando órdenes de trabajo:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar las órdenes de trabajo'
+        });
+      }
+    });
+  }
 
   onSubmit() {
     if (this.isFormValid()) {

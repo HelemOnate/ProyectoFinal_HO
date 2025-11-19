@@ -58,6 +58,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
   private navStopTimer: any = null;
   loadingMessage = 'Cargando…';
   private profileLoaded = false; // Bandera para saber si el perfil ya se cargó
+  private _cachedRoles: string[] | null = null;
+  private _cachedDisplayRole: string | undefined = undefined;
+  private _lastUserCheck: any = null;
   private readonly segmentTitleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
     'clients': 'Clientes',
@@ -172,6 +175,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
     // Suscribirse a cambios en el usuario actual
     this.auth.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Invalidar caché de roles cuando cambia el usuario
+      this.invalidateRoleCache();
       // Si el perfil ya se cargó, marcar como cargado
       if (user && !this.profileLoaded) {
         this.profileLoaded = true;
@@ -185,6 +190,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
           console.log('👤 [AppComponent] Perfil de usuario recibido:', user);
           console.log('👤 [AppComponent] Roles del usuario:', (user as any).roles || (user as any).role);
           this.currentUser = user;
+          this.invalidateRoleCache(); // Invalidar caché al recibir nuevo perfil
           this.profileLoaded = true; // Marcar que el perfil se cargó
           // Forzar detección de cambios después de actualizar el usuario
           this.cdr.detectChanges();
@@ -361,10 +367,29 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   /**
+   * Invalida el caché de roles cuando el usuario cambia
+   */
+  private invalidateRoleCache(): void {
+    this._cachedRoles = null;
+    this._cachedDisplayRole = undefined;
+    this._lastUserCheck = this.currentUser;
+  }
+
+  /**
    * Obtiene los roles directamente del backend (perfil o token), sin prioridad
    * Usa los roles tal como vienen del backend en el orden que vienen
    */
   get roles(): string[] {
+    // Si el usuario cambió, invalidar el caché
+    if (this._lastUserCheck !== this.currentUser) {
+      this.invalidateRoleCache();
+    }
+
+    // Si ya tenemos el caché, devolverlo
+    if (this._cachedRoles !== null) {
+      return [...this._cachedRoles];
+    }
+
     const u = this.currentUser as any;
     
     // Sin prioridad: usar los roles tal como vienen del backend
@@ -385,8 +410,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
         .map((v: string) => String(v).toUpperCase());
       
       if (names.length) {
-        console.log('🔍 [AppComponent] Roles desde perfil (relación):', names);
-        return names;
+        this._cachedRoles = names;
+        return [...names];
       }
     }
     
@@ -394,7 +419,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     if (u && u.role) {
       const roleStr = String(u.role).toUpperCase().trim();
       if (roleStr && roleStr !== 'UNDEFINED' && roleStr !== 'NULL') {
-        console.log('🔍 [AppComponent] Rol desde campo role (fallback):', roleStr);
+        this._cachedRoles = [roleStr];
         return [roleStr];
       }
     }
@@ -403,12 +428,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
     // Esto evita usar roles del token mientras el perfil se está cargando
     if (this.profileLoaded || !this.currentUser) {
       const tokenRoles = (this.auth.roles || []).map(r => String(r).toUpperCase());
-      console.log('🔍 [AppComponent] Roles desde token (fallback):', tokenRoles);
-      return tokenRoles;
+      this._cachedRoles = tokenRoles;
+      return [...tokenRoles];
     }
     
     // Si el perfil aún no se ha cargado, devolver array vacío para evitar mostrar rol incorrecto
-    console.log('⏳ [AppComponent] Esperando carga del perfil...');
+    this._cachedRoles = [];
     return [];
   }
 
@@ -417,15 +442,25 @@ export class AppComponent implements OnInit, AfterViewChecked {
    * Usa el primer rol que viene del perfil o token, en el orden que viene del backend
    */
   get displayRole(): string | undefined {
+    // Si el usuario cambió, invalidar el caché
+    if (this._lastUserCheck !== this.currentUser) {
+      this.invalidateRoleCache();
+    }
+
+    // Si ya tenemos el caché, devolverlo
+    if (this._cachedDisplayRole !== undefined) {
+      return this._cachedDisplayRole;
+    }
+
     const roles = this.roles;
     if (!roles || roles.length === 0) {
-      console.warn('⚠️ [AppComponent] No se encontraron roles para el usuario');
-      return undefined;
+      this._cachedDisplayRole = undefined;
+      return this._cachedDisplayRole;
     }
+    
     // Usar el primer rol que viene del backend, sin ordenar por prioridad
-    const role = roles[0];
-    console.log('🎯 [AppComponent] displayRole seleccionado:', role, 'de roles:', roles);
-    return role;
+    this._cachedDisplayRole = roles[0];
+    return this._cachedDisplayRole;
   }
 
   get sortedRoles(): string[] {

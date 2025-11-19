@@ -14,11 +14,28 @@ export const getAllClients = async (req: Request, res: Response) => {
 
 export const createClient = async (req: Request, res: Response) => {
   try {
-    const client = await Client.create(req.body);
+    const { name, phone, email, address } = req.body;
+    
+    if (!name || !phone || !email || !address) {
+      return res.status(400).json({ error: 'Faltan campos requeridos: name, phone, email, address' });
+    }
+
+    const client = await Client.create({
+      name,
+      phone,
+      email,
+      address,
+      status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
+      active: true
+    });
     res.status(201).json(client);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error creating client' });
+  } catch (error: any) {
+    console.error('Error creating client:', error);
+    res.status(500).json({ 
+      error: 'Error creating client',
+      message: error.message,
+      details: error.errors ? error.errors.map((e: any) => e.message) : undefined
+    });
   }
 };
 

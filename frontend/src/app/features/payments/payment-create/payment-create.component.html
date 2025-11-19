@@ -23,16 +23,18 @@
             <div class="form-group">
               <label for="workOrderId" class="form-label flex items-center">
                 <i class="pi pi-wrench mr-2 text-blue-500"></i>
-                ID de la Orden de Trabajo *
+                Orden de Trabajo *
               </label>
-              <input 
-                type="number" 
-                id="workOrderId"
-                name="workOrderId" 
+              <p-select 
                 [(ngModel)]="payment.workOrderId" 
+                name="workOrderId"
+                [options]="workOrderOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecciona una orden de trabajo"
                 required
-                placeholder="123"
-                class="form-control">
+                [style]="{'width': '100%'}">
+              </p-select>
             </div>
 
             <div class="form-group">
@@ -62,11 +64,13 @@
               </label>
               <p-select 
                 [(ngModel)]="payment.paymentMethod" 
-                [options]="paymentMethodOptions"
-                placeholder="Selecciona el método de pago"
                 name="paymentMethod"
+                [options]="paymentMethodOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecciona el método de pago"
                 required
-                style="width: 100%;">
+                [style]="{'width': '100%'}">
               </p-select>
             </div>
 
@@ -77,11 +81,13 @@
               </label>
               <p-select 
                 [(ngModel)]="payment.status" 
-                [options]="statusOptions"
-                placeholder="Selecciona el estado"
                 name="status"
+                [options]="statusOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Selecciona el estado"
                 required
-                style="width: 100%;">
+                [style]="{'width': '100%'}">
               </p-select>
             </div>
           </div>

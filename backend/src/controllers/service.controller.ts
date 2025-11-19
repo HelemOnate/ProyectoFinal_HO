@@ -14,7 +14,13 @@ export const getAllServices = async (req: Request, res: Response) => {
 
 export const createService = async (req: Request, res: Response) => {
   try {
-    const service = await Service.create(req.body);
+    const serviceData = {
+      ...req.body,
+      laborCost: req.body.laborCost ?? 0,
+      status: req.body.status ?? 'ACTIVE',
+      active: req.body.active ?? true
+    };
+    const service = await Service.create(serviceData);
     res.status(201).json(service);
   } catch (error) {
     console.error(error);

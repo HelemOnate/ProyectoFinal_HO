@@ -982,6 +982,13 @@ html.dark-theme body {
   box-shadow: 0 2px 8px rgba(59,130,246,0.10);
   font-size: 1rem;
   color: #fff;
+  padding: 2px;
+}
+
+.footer-logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .footer-title {
   font-size: 0.875rem;

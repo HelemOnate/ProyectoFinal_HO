@@ -37,10 +37,10 @@ export function initServiceModel(sequelize: Sequelize) {
     description: { type: DataTypes.STRING, allowNull: false },
     category: { type: DataTypes.STRING, allowNull: false },
     price: { type: DataTypes.FLOAT, allowNull: false },
-    laborCost: { type: DataTypes.FLOAT, allowNull: false },
+    laborCost: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
     durationMinutes: { type: DataTypes.INTEGER, allowNull: false },
-    status: { type: DataTypes.ENUM('ACTIVE', 'INACTIVE'), allowNull: false },
-    active: { type: DataTypes.BOOLEAN, allowNull: false },
+    status: { type: DataTypes.ENUM('ACTIVE', 'INACTIVE'), allowNull: false, defaultValue: 'ACTIVE' },
+    active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updatedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   }, {

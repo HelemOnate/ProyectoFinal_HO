@@ -61,9 +61,11 @@
               [(ngModel)]="statusFilter" 
               name="statusFilter"
               [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
               (onChange)="onStatusFilterChange()"
               placeholder="Filtrar por estado"
-              style="width: 100%;">
+              [style]="{'width': '100%'}">
             </p-select>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
@@ -91,6 +93,14 @@
           <span style="font-size: 0.875rem; color: #6b7280;">{{ filteredAppointments.length }} citas</span>
           <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></div>
         </div>
+      </div>
+      
+      <!-- Debug info -->
+      <div style="background: #fef3c7; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; border-left: 4px solid #f59e0b;">
+        <strong>🐛 Debug:</strong> 
+        Total citas: {{ appointments.length }} | 
+        Filtradas: {{ filteredAppointments.length }} | 
+        Loading: {{ loading }}
       </div>
       <p-table 
         [value]="filteredAppointments" 
@@ -171,25 +181,25 @@
             <td style="padding: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <i class="pi pi-user" style="color: #6b7280; font-size: 0.875rem;"></i>
-                <span style="color: #374151;">{{ getClientName(appointment.clientId) }}</span>
+                <span style="color: #374151;">{{ getClientName(appointment.clientId.toString()) }}</span>
               </div>
             </td>
             <td style="padding: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <i class="pi pi-car" style="color: #6b7280; font-size: 0.875rem;"></i>
-                <span style="color: #374151;">{{ getVehicleInfo(appointment.vehicleId) }}</span>
+                <span style="color: #374151;">{{ getVehicleInfo(appointment.vehicleId.toString()) }}</span>
               </div>
             </td>
             <td style="padding: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <i class="pi pi-wrench" style="color: #6b7280; font-size: 0.875rem;"></i>
-                <span style="color: #374151;">{{ getMechanicName(appointment.mechanicId) }}</span>
+                <span style="color: #374151;">{{ getMechanicName(appointment.mechanicId.toString()) }}</span>
               </div>
             </td>
             <td style="padding: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <i class="pi pi-cog" style="color: #6b7280; font-size: 0.875rem;"></i>
-                <span style="color: #374151;">{{ getServiceName(appointment.serviceId) }}</span>
+                <span style="color: #374151;">{{ getServiceName(appointment.serviceId.toString()) }}</span>
               </div>
             </td>
             <td style="padding: 1rem; text-align: center;">

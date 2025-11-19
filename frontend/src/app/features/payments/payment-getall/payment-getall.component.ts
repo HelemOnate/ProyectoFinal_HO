@@ -11,7 +11,9 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { PaymentService } from '../../../core/services/payment.service';
+import { WorkOrderService } from '../../../core/services/work-order.service';
 import { Payment } from '../../../shared/models/payment.model';
+import { WorkOrder } from '../../../shared/models/work-order.model';
 import { TagSeverity } from '../../../shared/models/ui.model';
 import { ModalService } from '../../../core/services/modal.service';
 
@@ -36,6 +38,7 @@ import { ModalService } from '../../../core/services/modal.service';
 export class PaymentGetallComponent implements OnInit {
   payments: Payment[] = [];
   filteredPayments: Payment[] = [];
+  workOrders: WorkOrder[] = [];
   searchTerm: string = '';
   statusFilter: string = 'all';
   methodFilter: string = 'all';
@@ -60,6 +63,7 @@ export class PaymentGetallComponent implements OnInit {
 
   constructor(
     private paymentService: PaymentService,
+    private workOrderService: WorkOrderService,
     private router: Router,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
@@ -68,6 +72,7 @@ export class PaymentGetallComponent implements OnInit {
 
   ngOnInit() {
     this.loadPayments();
+    this.loadWorkOrders();
   }
 
   loadPayments() {
@@ -90,11 +95,23 @@ export class PaymentGetallComponent implements OnInit {
     });
   }
 
+  loadWorkOrders() {
+    this.workOrderService.getWorkOrders().subscribe({
+      next: (workOrders: any[]) => {
+        this.workOrders = workOrders;
+      },
+      error: (error: any) => {
+        console.error('Error cargando órdenes de trabajo:', error);
+      }
+    });
+  }
+
   applyFilters() {
     this.filteredPayments = this.payments.filter(payment => {
       const matchesSearch = !this.searchTerm || 
         payment.id.toString().includes(this.searchTerm) ||
         payment.workOrderId.toString().includes(this.searchTerm) ||
+        this.getWorkOrderInfo(payment.workOrderId).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         this.getPaymentMethodText(payment.paymentMethod).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (payment.transactionId && payment.transactionId.toLowerCase().includes(this.searchTerm.toLowerCase()));
       
@@ -201,5 +218,13 @@ export class PaymentGetallComponent implements OnInit {
       case 'refunded': return 'Reembolsado';
       default: return status;
     }
+  }
+
+  getWorkOrderInfo(workOrderId: number): string {
+    const workOrder = this.workOrders.find(wo => wo.id === workOrderId);
+    if (!workOrder) {
+      return `Orden #${workOrderId}`;
+    }
+    return `Orden #${workOrder.id} - ${workOrder.description || 'Sin descripción'}`;
   }
 }

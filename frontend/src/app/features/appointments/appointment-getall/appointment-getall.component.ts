@@ -39,7 +39,7 @@ import { ModalService } from '../../../core/services/modal.service';
     TagModule,
     DatePickerModule
   ],
-  
+  providers: [ConfirmationService, MessageService],
   templateUrl: './appointment-getall.component.html',
   encapsulation: ViewEncapsulation.None
 })
@@ -84,15 +84,19 @@ export class AppointmentGetallComponent implements OnInit {
   }
 
   loadAppointments() {
+    console.log('📅 [AppointmentGetAll] Cargando citas...');
     this.loading = true;
     this.appointmentService.getAppointments().subscribe({
       next: (appointments) => {
+        console.log('✅ [AppointmentGetAll] Citas recibidas:', appointments);
+        console.log('✅ [AppointmentGetAll] Cantidad de citas:', appointments.length);
         this.appointments = appointments;
         this.applyFilters();
+        console.log('✅ [AppointmentGetAll] Citas filtradas:', this.filteredAppointments.length);
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('Error cargando citas:', error);
+        console.error('❌ [AppointmentGetAll] Error cargando citas:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -104,23 +108,27 @@ export class AppointmentGetallComponent implements OnInit {
   }
 
   loadClients() {
+    console.log('👥 [AppointmentGetAll] Cargando clientes...');
     this.clientService.getClients().subscribe({
       next: (clients: any[]) => {
+        console.log('✅ [AppointmentGetAll] Clientes recibidos:', clients.length);
         this.clients = clients;
       },
       error: (error: any) => {
-        console.error('Error cargando clientes:', error);
+        console.error('❌ [AppointmentGetAll] Error cargando clientes:', error);
       }
     });
   }
 
   loadVehicles() {
+    console.log('🚗 [AppointmentGetAll] Cargando vehículos...');
     this.vehicleService.getVehicles().subscribe({
       next: (vehicles: any[]) => {
+        console.log('✅ [AppointmentGetAll] Vehículos recibidos:', vehicles.length);
         this.vehicles = vehicles;
       },
       error: (error: any) => {
-        console.error('Error cargando vehículos:', error);
+        console.error('❌ [AppointmentGetAll] Error cargando vehículos:', error);
       }
     });
   }
@@ -148,6 +156,12 @@ export class AppointmentGetallComponent implements OnInit {
   }
 
   applyFilters() {
+    console.log('🔍 [AppointmentGetAll] Aplicando filtros...');
+    console.log('🔍 [AppointmentGetAll] Total citas:', this.appointments.length);
+    console.log('🔍 [AppointmentGetAll] searchTerm:', this.searchTerm);
+    console.log('🔍 [AppointmentGetAll] statusFilter:', this.statusFilter);
+    console.log('🔍 [AppointmentGetAll] dateFilter:', this.dateFilter);
+    
     this.filteredAppointments = this.appointments.filter(appointment => {
       const matchesSearch = !this.searchTerm || 
         this.getClientName(appointment.clientId.toString()).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -162,6 +176,8 @@ export class AppointmentGetallComponent implements OnInit {
       
       return matchesSearch && matchesStatus && matchesDate;
     });
+    
+    console.log('✅ [AppointmentGetAll] Citas después de filtros:', this.filteredAppointments.length);
   }
 
   onSearch() {
@@ -340,21 +356,33 @@ export class AppointmentGetallComponent implements OnInit {
 
   getClientName(clientId: string): string {
     const client = this.clients.find(c => c.id.toString() === clientId);
+    if (!client) {
+      console.warn('⚠️ [AppointmentGetAll] Cliente no encontrado:', clientId, 'Total clientes:', this.clients.length);
+    }
     return client ? client.name : 'Cliente no encontrado';
   }
 
   getVehicleInfo(vehicleId: string): string {
     const vehicle = this.vehicles.find(v => v.id.toString() === vehicleId);
+    if (!vehicle) {
+      console.warn('⚠️ [AppointmentGetAll] Vehículo no encontrado:', vehicleId, 'Total vehículos:', this.vehicles.length);
+    }
     return vehicle ? `${vehicle.make} ${vehicle.model}` : 'Vehículo no encontrado';
   }
 
   getMechanicName(mechanicId: string): string {
     const mechanic = this.mechanics.find(m => m.id.toString() === mechanicId);
+    if (!mechanic) {
+      console.warn('⚠️ [AppointmentGetAll] Mecánico no encontrado:', mechanicId, 'Total mecánicos:', this.mechanics.length);
+    }
     return mechanic ? `${mechanic.firstName} ${mechanic.lastName}` : 'Mecánico no encontrado';
   }
 
   getServiceName(serviceId: string): string {
     const service = this.services.find(s => s.id.toString() === serviceId);
+    if (!service) {
+      console.warn('⚠️ [AppointmentGetAll] Servicio no encontrado:', serviceId, 'Total servicios:', this.services.length);
+    }
     return service ? service.name : 'Servicio no encontrado';
   }
 }

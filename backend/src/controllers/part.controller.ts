@@ -14,7 +14,15 @@ export const getAllParts = async (req: Request, res: Response) => {
 
 export const createPart = async (req: Request, res: Response) => {
   try {
-    const part = await Part.create(req.body);
+    const partData = {
+      ...req.body,
+      unitPrice: req.body.unitPrice ?? req.body.price ?? 0,
+      price: req.body.price ?? req.body.unitPrice ?? 0,
+      stock: req.body.stock ?? 0,
+      status: req.body.status ?? 'ACTIVE',
+      active: req.body.active ?? true
+    };
+    const part = await Part.create(partData);
     res.status(201).json(part);
   } catch (error) {
     console.error(error);

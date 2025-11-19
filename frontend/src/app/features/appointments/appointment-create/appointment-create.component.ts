@@ -84,16 +84,19 @@ export class AppointmentCreateComponent implements OnInit {
   }
 
   loadClients() {
+    console.log('👥 [AppointmentCreate] Cargando clientes...');
     this.clientService.getClients().subscribe({
       next: (clients: any[]) => {
+        console.log('✅ [AppointmentCreate] Clientes recibidos:', clients);
         this.clients = clients;
         this.clientOptions = clients.map((client: any) => ({
           label: client.name,
           value: client.id
         }));
+        console.log('📋 [AppointmentCreate] Opciones de clientes:', this.clientOptions);
       },
       error: (error: any) => {
-        console.error('Error cargando clientes:', error);
+        console.error('❌ [AppointmentCreate] Error cargando clientes:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -104,13 +107,16 @@ export class AppointmentCreateComponent implements OnInit {
   }
 
   loadVehicles() {
+    console.log('🚗 [AppointmentCreate] Cargando vehículos...');
     this.vehicleService.getVehicles().subscribe({
       next: (vehicles: any[]) => {
+        console.log('✅ [AppointmentCreate] Vehículos recibidos:', vehicles);
         this.vehicles = vehicles;
         this.updateVehicleOptions();
+        console.log('📋 [AppointmentCreate] Opciones de vehículos:', this.vehicleOptions);
       },
       error: (error: any) => {
-        console.error('Error cargando vehículos:', error);
+        console.error('❌ [AppointmentCreate] Error cargando vehículos:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -121,13 +127,19 @@ export class AppointmentCreateComponent implements OnInit {
   }
 
   updateVehicleOptions() {
+    console.log('🔄 [AppointmentCreate] Actualizando opciones de vehículos');
+    console.log('🔄 [AppointmentCreate] clientId seleccionado:', this.appointment.clientId);
+    console.log('🔄 [AppointmentCreate] Total vehículos disponibles:', this.vehicles.length);
+    
     if (this.appointment.clientId > 0) {
       const filteredVehicles = this.vehicles.filter(vehicle => vehicle.clientId === this.appointment.clientId);
+      console.log('🔄 [AppointmentCreate] Vehículos filtrados por cliente:', filteredVehicles.length);
       this.vehicleOptions = filteredVehicles.map(vehicle => ({
         label: `${vehicle.make} ${vehicle.model} - ${vehicle.licensePlate}`,
         value: vehicle.id
       }));
     } else {
+      console.log('🔄 [AppointmentCreate] Mostrando todos los vehículos');
       this.vehicleOptions = this.vehicles.map(vehicle => {
         const client = this.clients.find(c => c.id === vehicle.clientId);
         const clientName = client ? ` (${client.name})` : '';
@@ -137,6 +149,7 @@ export class AppointmentCreateComponent implements OnInit {
         };
       });
     }
+    console.log('✅ [AppointmentCreate] vehicleOptions final:', this.vehicleOptions);
   }
 
   onClientChange() {
@@ -145,16 +158,19 @@ export class AppointmentCreateComponent implements OnInit {
   }
 
   loadMechanics() {
+    console.log('🔧 [AppointmentCreate] Cargando mecánicos...');
     this.mechanicService.getMechanics().subscribe({
       next: (mechanics: any[]) => {
+        console.log('✅ [AppointmentCreate] Mecánicos recibidos:', mechanics);
         this.mechanics = mechanics;
         this.mechanicOptions = mechanics.map((mechanic: any) => ({
           label: `${mechanic.firstName} ${mechanic.lastName}`,
           value: mechanic.id
         }));
+        console.log('📋 [AppointmentCreate] Opciones de mecánicos:', this.mechanicOptions);
       },
       error: (error: any) => {
-        console.error('Error cargando mecánicos:', error);
+        console.error('❌ [AppointmentCreate] Error cargando mecánicos:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -165,16 +181,19 @@ export class AppointmentCreateComponent implements OnInit {
   }
 
   loadServices() {
+    console.log('⚙️ [AppointmentCreate] Cargando servicios...');
     this.serviceService.getServices().subscribe({
       next: (services: any[]) => {
+        console.log('✅ [AppointmentCreate] Servicios recibidos:', services);
         this.services = services;
         this.serviceOptions = services.map((service: any) => ({
           label: service.name,
           value: service.id
         }));
+        console.log('📋 [AppointmentCreate] Opciones de servicios:', this.serviceOptions);
       },
       error: (error: any) => {
-        console.error('Error cargando servicios:', error);
+        console.error('❌ [AppointmentCreate] Error cargando servicios:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
